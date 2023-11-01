@@ -47,7 +47,7 @@ public class NoteBookUtil {
      */
     public AnnotationStore getAnnotationStore(final String userName)
             throws SQLException, IOException {
-        return NoteBookManager.getManager(getDataSource(userName))
+        return new NoteBookManager(getDataSource(userName))
                 .getAnnotationStore();
     }
 
@@ -63,8 +63,8 @@ public class NoteBookUtil {
         JdbcDataSource ds = new JdbcDataSource();
         String dbFile = DATA_NOTEBOOK + userName;
         ds.setURL("jdbc:h2:" + dbFile);
-        ds.setUser("sa");
-        ds.setPassword("sa");
+        ds.setUser(userName);
+        ds.setPassword(userName);
         if (!new File(dbFile + H2_DB_EXT).exists()) {
             Reader reader = new InputStreamReader(AnnotationService.class
                     .getModule()

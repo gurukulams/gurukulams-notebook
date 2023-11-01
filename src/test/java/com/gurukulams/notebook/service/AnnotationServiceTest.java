@@ -18,6 +18,9 @@ import java.util.UUID;
 class AnnotationServiceTest {
 
     public static final String USER_NAME = "mani";
+    public static final String USER_NAME2 = "mani2";
+    private static final String TYPE = "TYPE";
+    private static final String INSTANCE = "INSTANCE";
     private final AnnotationService annotationService;
 
     AnnotationServiceTest() {
@@ -153,6 +156,29 @@ class AnnotationServiceTest {
         annotationService.delete(USER_NAME, annotation.getId(), locale);
         Assertions.assertFalse(annotationService.read(USER_NAME,annotation.getId(), locale).isPresent(),
                 "Deleted Annotation");
+    }
+
+    @Test
+    void testMultiUser() throws SQLException, IOException {
+        annotationService.create(
+                USER_NAME, INSTANCE, anAnnotation(), null, TYPE
+        );
+        Annotation newAnnotation = new Annotation();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("a", "a");
+        jsonObject.put("b", "b2");
+        newAnnotation.setNote(jsonObject);
+        annotationService.create(USER_NAME, INSTANCE, anAnnotation(), null, TYPE
+        );
+
+        annotationService.create(USER_NAME2, INSTANCE, anAnnotation(), null, TYPE
+        );
+
+        List<Annotation> listofannotation = annotationService.list(USER_NAME,
+                null, TYPE,
+                INSTANCE
+        );
+        Assertions.assertEquals(2, listofannotation.size());
     }
 
     private Annotation anAnnotation() {

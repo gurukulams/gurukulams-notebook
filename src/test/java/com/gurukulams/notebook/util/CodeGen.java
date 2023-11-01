@@ -17,7 +17,7 @@ public final class CodeGen {
      * @param args
      */
     public static void main(final String[] args) {
-        ClassLoader classLoader = TestUtil.class.getClassLoader();
+        ClassLoader classLoader = CodeGen.class.getClassLoader();
         File file = new File("target/generated-sources/notebook/com/gurukulams/notebook/NoteBookManager.java");
         System.out.println("Hello \n\n\n\n\n\n\n\n\n\n\n\n\n\n " + file.getAbsolutePath());
 
