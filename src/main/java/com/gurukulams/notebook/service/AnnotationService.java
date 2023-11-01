@@ -1,17 +1,10 @@
 package com.gurukulams.notebook.service;
 
-import com.gurukulams.notebook.NoteBookManager;
 import com.gurukulams.notebook.model.Annotation;
 import com.gurukulams.notebook.store.AnnotationStore;
-import org.h2.jdbcx.JdbcDataSource;
+import com.gurukulams.notebook.util.NoteBookUtil;
 
-
-import org.h2.tools.RunScript;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
@@ -22,15 +15,6 @@ import java.util.UUID;
  * The type User Annotation service.
  */
 public class AnnotationService {
-
-    /**
-     * Notebooks Data Storage Directory.
-     */
-    private static final String DATA_NOTEBOOK = "./data/notebooks/";
-    /**
-     * File Extension of H2.
-     */
-    private static final String H2_DB_EXT = ".mv.db";
 
     /**
      * Create optional.
@@ -54,7 +38,8 @@ public class AnnotationService {
         if (locale != null) {
             annotation.setLocale(locale.getLanguage());
         }
-        return this.getAnnotationStore(userName)
+        return NoteBookUtil.getNoteBookUtil()
+                .getAnnotationStore(userName)
                 .insert()
                 .values(annotation).returning();
     }
@@ -72,11 +57,11 @@ public class AnnotationService {
                         final Locale locale)
             throws SQLException, IOException {
         if (locale == null) {
-            return this.getAnnotationStore(userName)
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
                     .select(id, AnnotationStore
                     .locale().isNull());
         } else {
-            return this.getAnnotationStore(userName)
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
                     .select(id, AnnotationStore
                     .locale().eq(locale.getLanguage()));
         }
@@ -97,12 +82,12 @@ public class AnnotationService {
                                         final String onInstance)
             throws SQLException, IOException {
         if (locale == null) {
-            return this.getAnnotationStore(userName)
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
                     .select(AnnotationStore.onType().eq(onType)
                             .and().locale().isNull()
                             .and().onInstance().eq(onInstance)).execute();
         } else {
-            return this.getAnnotationStore(userName)
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
                     .select(AnnotationStore.onType().eq(onType)
                             .and().locale().eq(locale.getLanguage())
                             .and().onInstance().eq(onInstance)).execute();
@@ -125,12 +110,12 @@ public class AnnotationService {
 
         if (id.equals(annotation.getId())) {
             if (locale == null) {
-                this.getAnnotationStore(userName).update()
+                NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).update()
                     .set(AnnotationStore.note(annotation.getNote()))
                     .where(AnnotationStore.locale().isNull())
                     .execute();
             } else {
-                this.getAnnotationStore(userName).update()
+                NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).update()
                         .set(AnnotationStore.note(annotation.getNote()))
                     .where(AnnotationStore.locale().eq(locale.getLanguage()))
                     .execute();
@@ -153,11 +138,11 @@ public class AnnotationService {
                                 final Locale locale)
             throws SQLException, IOException {
         if (locale == null) {
-            return this.getAnnotationStore(userName).delete(
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).delete(
                     AnnotationStore.id().eq(id)
                             .and().locale().isNull()).execute() == 1;
         }
-        return this.getAnnotationStore(userName).delete(
+        return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).delete(
                 AnnotationStore.id().eq(id)
                         .and().locale()
                         .eq(locale.getLanguage())).execute() == 1;
@@ -169,27 +154,8 @@ public class AnnotationService {
      */
     public void delete(final String userName)
             throws SQLException, IOException {
-        this.getAnnotationStore(userName).delete().execute();
+        NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).delete().execute();
     }
 
-    /**
-     * Get Annotation Store for User.
-     * @param userName
-     * @return getAnnotationService(userName)
-     */
-    private AnnotationStore getAnnotationStore(final String userName)
-            throws SQLException, IOException {
-        String dbFile = DATA_NOTEBOOK + userName;
-        JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:" + dbFile);
-        ds.setUser("sa");
-        ds.setPassword("sa");
-        if (!new File(dbFile + H2_DB_EXT).exists()) {
-            Reader reader = new InputStreamReader(AnnotationService.class
-                    .getModule()
-                    .getResourceAsStream("db/migration/V1__notes.sql"));
-            RunScript.execute(ds.getConnection(), reader);
-        }
-        return NoteBookManager.getManager(ds).getAnnotationStore();
-    }
+    
 }
