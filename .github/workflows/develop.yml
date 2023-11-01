@@ -23,15 +23,15 @@ jobs:
       run: docker-compose up -d
     - name: Prepare Code
       run: |
-        ./mvnw --quiet -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B clean package -DskipTests --file pom.xml
-        ./mvnw --quiet -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B exec:java --file pom.xml
+        ./mvnw -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B clean package -DskipTests --file pom.xml
+        ./mvnw -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B exec:java --file pom.xml
       env:
         USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
         ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
     - name: Move the Artifacts
       run: cp -rf target/generated-sources/notebook/* src/main/java && rm -rf target/generated-sources && ls target && sed -i '/<!--Compiler/,/End-->/d' pom.xml
     - name: Quality Check
-      run: ./mvnw --quiet -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B -Dcheckstyle.skip jacoco:prepare-agent install jacoco:report --file pom.xml
+      run: ./mvnw -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B -Dcheckstyle.skip jacoco:prepare-agent install jacoco:report --file pom.xml
       env:
         USER_NAME: ${{ secrets.GH_PACKAGE_USER }}
         ACCESS_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
