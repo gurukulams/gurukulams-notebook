@@ -18,7 +18,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
           server-id: github
           settings-path: ${{ github.workspace }}
       - name: Build
