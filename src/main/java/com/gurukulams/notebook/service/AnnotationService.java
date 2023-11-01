@@ -110,12 +110,14 @@ public class AnnotationService {
 
         if (id.equals(annotation.getId())) {
             if (locale == null) {
-                NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).update()
+                NoteBookUtil.getNoteBookUtil()
+                        .getAnnotationStore(userName).update()
                     .set(AnnotationStore.note(annotation.getNote()))
                     .where(AnnotationStore.locale().isNull())
                     .execute();
             } else {
-                NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).update()
+                NoteBookUtil.getNoteBookUtil()
+                        .getAnnotationStore(userName).update()
                         .set(AnnotationStore.note(annotation.getNote()))
                     .where(AnnotationStore.locale().eq(locale.getLanguage()))
                     .execute();
@@ -138,11 +140,13 @@ public class AnnotationService {
                                 final Locale locale)
             throws SQLException, IOException {
         if (locale == null) {
-            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).delete(
+            return NoteBookUtil.getNoteBookUtil()
+                    .getAnnotationStore(userName).delete(
                     AnnotationStore.id().eq(id)
                             .and().locale().isNull()).execute() == 1;
         }
-        return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).delete(
+        return NoteBookUtil.getNoteBookUtil()
+                .getAnnotationStore(userName).delete(
                 AnnotationStore.id().eq(id)
                         .and().locale()
                         .eq(locale.getLanguage())).execute() == 1;
@@ -154,8 +158,7 @@ public class AnnotationService {
      */
     public void delete(final String userName)
             throws SQLException, IOException {
-        NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName).delete().execute();
+        NoteBookUtil.getNoteBookUtil()
+                .getAnnotationStore(userName).delete().execute();
     }
-
-    
 }
