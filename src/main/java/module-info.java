@@ -9,7 +9,7 @@ module gurukulams.notebook {
     requires com.h2database;
 
     opens com.gurukulams.notebook.service;
-    opens db.migration;
 
     exports com.gurukulams.notebook.service;
+    exports com.gurukulams.notebook.model;
 }
