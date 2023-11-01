@@ -13,7 +13,7 @@ public class TestUtil {
         DataSource dataSource = getH2DataSource();
 
         ClassLoader classLoader = TestUtil.class.getClassLoader();
-        File file = new File(classLoader.getResource("db/ddl").getFile());
+        File file = new File(classLoader.getResource("db/migration").getFile());
 
         return NoteBookManager.getManager(dataSource);
     }
