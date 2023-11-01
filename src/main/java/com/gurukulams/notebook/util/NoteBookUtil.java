@@ -68,7 +68,7 @@ public class NoteBookUtil {
         if (!new File(dbFile + H2_DB_EXT).exists()) {
             Reader reader = new InputStreamReader(AnnotationService.class
                     .getModule()
-                    .getResourceAsStream("db/migration/V1__notes.sql"));
+                    .getResourceAsStream("db/ddl/notes.sql"));
             RunScript.execute(ds.getConnection(), reader);
         }
         return ds;
