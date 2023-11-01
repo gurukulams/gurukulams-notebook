@@ -1,0 +1,9 @@
+# Connection Details
+name: "Gurukulams"
+url: "jdbc:postgresql://localhost:5432/gurukulams_notebook_db"
+userName: "tom"
+password: "password"
+schemaName: "gurukulams_notebook_db"
+
+# Mapping Logic
+rootPackage: "com.gurukulams.notebook"
