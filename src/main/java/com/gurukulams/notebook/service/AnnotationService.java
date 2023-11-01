@@ -1,10 +1,11 @@
 package com.gurukulams.notebook.service;
 
-import org.h2.jdbcx.JdbcDataSource;
-
-import com.gurukulams.notebook.GurukulamsManager;
+import com.gurukulams.notebook.NoteBookManager;
 import com.gurukulams.notebook.model.Annotation;
 import com.gurukulams.notebook.store.AnnotationStore;
+import org.h2.jdbcx.JdbcDataSource;
+
+
 import org.h2.tools.RunScript;
 
 import java.io.File;
@@ -189,6 +190,6 @@ public class AnnotationService {
                     .getResourceAsStream("db/migration/V1__notes.sql"));
             RunScript.execute(ds.getConnection(), reader);
         }
-        return GurukulamsManager.getManager(ds).getAnnotationStore();
+        return NoteBookManager.getManager(ds).getAnnotationStore();
     }
 }

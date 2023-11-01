@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<name>Gurukulams Core</name>
-	<description>Gurukulams Core Services</description>
+	<name>Gurukulams Notebook</name>
+	<description>Gurukulams Notebook Services</description>
 	<groupId>com.gurukulams</groupId>
-	<artifactId>core</artifactId>
+	<artifactId>notebook</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<maven.compiler.target>20</maven.compiler.target>
-		<maven.compiler.source>20</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
 
 		<junit.version>5.10.0</junit.version>
 		<archunit.version>1.0.1</archunit.version>
@@ -24,7 +24,6 @@
 		<asm.version>9.4</asm.version>
 
 		<postgresql.version>42.5.4</postgresql.version>
-		<flyway-core.version>9.21.1</flyway-core.version>
 		<maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
 		<exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
 		<json.version>20230618</json.version>
@@ -104,14 +103,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.flywaydb</groupId>
-			<artifactId>flyway-core</artifactId>
-			<version>${flyway-core.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-
-		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>${json.version}</version>
@@ -154,12 +145,6 @@
 						<groupId>org.postgresql</groupId>
 						<artifactId>postgresql</artifactId>
 						<version>${postgresql.version}</version>
-					</dependency>
-
-					<dependency>
-						<groupId>org.flywaydb</groupId>
-						<artifactId>flyway-core</artifactId>
-						<version>${flyway-core.version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -205,7 +190,7 @@
 				<version>${jacoco.version}</version>
 				<configuration>
 					<includes>
-						<include>com/gurukulams/core/service/*</include>
+						<include>com/gurukulams/notebook/service/*</include>
 					</includes>
 				</configuration>
 				<executions>

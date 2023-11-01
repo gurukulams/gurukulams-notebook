@@ -1,4 +1,4 @@
-module gurukulams.core {
+module gurukulams.notebook {
     requires java.base;
     requires java.sql;
     requires java.naming;
@@ -9,7 +9,6 @@ module gurukulams.core {
     requires com.h2database;
 
     opens com.gurukulams.notebook.service;
-    opens com.gurukulams.notebook.payload;
     opens db.migration;
 
     exports com.gurukulams.notebook.service;
