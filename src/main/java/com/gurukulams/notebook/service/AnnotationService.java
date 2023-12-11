@@ -138,11 +138,9 @@ public class AnnotationService {
                             .and().locale().eq(locale.getLanguage()))
                     .execute();
             }
-            if (updated == 1) {
-                return read(userName, id, onType, onInstance, locale);
-            } else {
-                throw new IllegalArgumentException("Update not successful");
-            }
+
+            return read(userName, id, onType, onInstance, locale);
+
 
         } else {
             throw new IllegalArgumentException("Ids do not match");
