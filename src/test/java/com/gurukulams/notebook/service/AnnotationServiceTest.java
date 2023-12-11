@@ -156,7 +156,7 @@ class AnnotationServiceTest {
         final Annotation annotation = annotationService.create(
                 USER_NAME,TYPE,INSTANCE, anAnnotation(), locale
         );
-        annotationService.delete(USER_NAME, annotation.getId(), locale);
+        annotationService.delete(USER_NAME, annotation.getId(), TYPE, INSTANCE, locale);
         Assertions.assertFalse(annotationService.read(USER_NAME,annotation.getId(),TYPE,INSTANCE, locale).isPresent(),
                 "Deleted Annotation");
     }
