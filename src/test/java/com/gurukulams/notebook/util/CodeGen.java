@@ -21,7 +21,7 @@ public final class CodeGen {
         File file = new File("target/generated-sources/notebook/com/gurukulams/notebook/NoteBookManager.java");
         System.out.println("Hello \n\n\n\n\n\n\n\n\n\n\n\n\n\n " + file.getAbsolutePath());
 
-        replaceAll(file,"return jsonText == null ? null : new JSONObject(jsonText);","return jsonText == null ? null : new JSONObject(jsonText.substring(1,jsonText.length() - 1).replace(\"\\\\\", \"\"));");
+        replaceAll(file,"return jsonText == null ? null : new ObjectMapper().readTree(jsonText);","return jsonText == null ? null : new ObjectMapper().readTree(jsonText.substring(1,jsonText.length() - 1).replace(\"\\\\\", \"\"));");
     }
 
     private static void replaceAll(File file, String text, String replacement) {
