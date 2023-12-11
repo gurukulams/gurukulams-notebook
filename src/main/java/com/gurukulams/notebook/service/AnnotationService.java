@@ -151,22 +151,30 @@ public class AnnotationService {
      * Delete boolean.
      * @param userName
      * @param id     the id
+     * @param onInstance the on instance
+     * @param onType
      * @param locale tha language
      * @return the boolean
      */
     public final boolean delete(final String userName,
                                 final String id,
+                                final String onType,
+                                final String onInstance,
                                 final Locale locale)
             throws SQLException, IOException {
         if (locale == null) {
             return NoteBookUtil.getNoteBookUtil()
                     .getAnnotationStore(userName).delete(
                     AnnotationStore.id().eq(id)
+                            .and().onType().eq(onType)
+                            .and().onInstance().eq(onInstance)
                             .and().locale().isNull()).execute() == 1;
         }
         return NoteBookUtil.getNoteBookUtil()
                 .getAnnotationStore(userName).delete(
                 AnnotationStore.id().eq(id)
+                        .and().onType().eq(onType)
+                        .and().onInstance().eq(onInstance)
                         .and().locale()
                         .eq(locale.getLanguage())).execute() == 1;
     }
