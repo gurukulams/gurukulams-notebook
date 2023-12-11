@@ -7,6 +7,7 @@ module gurukulams.notebook {
     requires jakarta.validation;
     requires org.hibernate.validator;
     requires com.h2database;
+    requires com.fasterxml.jackson.databind;
 
     opens com.gurukulams.notebook.service;
 

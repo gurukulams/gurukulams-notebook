@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * The type User Annotation service.
@@ -27,12 +26,12 @@ public class AnnotationService {
      * @return the optional
      */
     public final Annotation create(final String userName,
+                                   final String onType,
                                    final String onInstance,
                                    final Annotation annotation,
-                                   final Locale locale,
-                                   final String onType)
+                                   final Locale locale
+                                   )
             throws SQLException, IOException {
-        annotation.setId(UUID.randomUUID());
         annotation.setOnType(onType);
         annotation.setOnInstance(onInstance);
         if (locale != null) {
@@ -49,20 +48,24 @@ public class AnnotationService {
      * Read optional.
      * @param userName
      * @param id     the id
+     * @param onInstance
+     * @param onType
      * @param locale tha language
      * @return the optional
      */
     public final Optional<Annotation> read(final String userName,
-                                           final UUID id,
+                                           final String id,
+                                           final String onType,
+                                           final String onInstance,
                         final Locale locale)
             throws SQLException, IOException {
         if (locale == null) {
             return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
-                    .select(id, AnnotationStore
+                    .select(id, onType, onInstance, AnnotationStore
                     .locale().isNull());
         } else {
             return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
-                    .select(id, AnnotationStore
+                    .select(id, onType, onInstance, AnnotationStore
                     .locale().eq(locale.getLanguage()));
         }
     }
@@ -97,32 +100,48 @@ public class AnnotationService {
     /**
      * Update Annotation optional.
      * @param userName
+     * @param onInstance the on instance
+     * @param onType
      * @param id         the id
      * @param annotation the user Annotation
      * @param locale     tha language
      * @return the optional
      */
     public final Optional<Annotation> update(final String userName,
-                         final UUID id,
+                         final String id,
+                         final String onType,
+                         final String onInstance,
                           final Locale locale,
                           final Annotation annotation)
             throws SQLException, IOException {
 
         if (id.equals(annotation.getId())) {
+            int updated;
             if (locale == null) {
-                NoteBookUtil.getNoteBookUtil()
+                updated = NoteBookUtil.getNoteBookUtil()
                         .getAnnotationStore(userName).update()
-                    .set(AnnotationStore.note(annotation.getNote()))
-                    .where(AnnotationStore.locale().isNull())
+                    .set(AnnotationStore.body(annotation.getBody()),
+                            AnnotationStore.target(annotation.getTarget()))
+                    .where(AnnotationStore.id().eq(id)
+                            .and().onType().eq(onType)
+                            .and().onInstance().eq(onInstance)
+                            .and().locale().isNull())
                     .execute();
             } else {
-                NoteBookUtil.getNoteBookUtil()
+                updated = NoteBookUtil.getNoteBookUtil()
                         .getAnnotationStore(userName).update()
-                        .set(AnnotationStore.note(annotation.getNote()))
-                    .where(AnnotationStore.locale().eq(locale.getLanguage()))
+                        .set(AnnotationStore.body(annotation.getBody()),
+                        AnnotationStore.target(annotation.getTarget()))
+                    .where(AnnotationStore.id().eq(id)
+                            .and().onType().eq(onType)
+                            .and().onInstance().eq(onInstance)
+                            .and().locale().eq(locale.getLanguage()))
                     .execute();
             }
-            return read(userName, id, locale);
+
+            return read(userName, id, onType, onInstance, locale);
+
+
         } else {
             throw new IllegalArgumentException("Ids do not match");
         }
@@ -136,7 +155,7 @@ public class AnnotationService {
      * @return the boolean
      */
     public final boolean delete(final String userName,
-                                final UUID id,
+                                final String id,
                                 final Locale locale)
             throws SQLException, IOException {
         if (locale == null) {

@@ -1,7 +1,11 @@
 CREATE TABLE annotation (
-   id UUID PRIMARY KEY,
+   id VARCHAR NOT NULL,
    on_type VARCHAR NOT NULL,
    on_instance VARCHAR NOT NULL,
+   type VARCHAR NOT NULL,
+   motivation VARCHAR(80),
    locale VARCHAR(8),
-   note JSON NOT NULL
+   body JSON NOT NULL,
+   target JSON NOT NULL,
+   PRIMARY KEY(id, on_type, on_instance)
 );

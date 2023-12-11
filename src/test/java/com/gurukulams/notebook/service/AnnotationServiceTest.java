@@ -1,5 +1,8 @@
 package com.gurukulams.notebook.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gurukulams.notebook.model.Annotation;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +17,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
-
 class AnnotationServiceTest {
 
     public static final String USER_NAME = "mani";
@@ -22,6 +24,8 @@ class AnnotationServiceTest {
     private static final String TYPE = "TYPE";
     private static final String INSTANCE = "INSTANCE";
     private final AnnotationService annotationService;
+
+    ObjectMapper mapper = new ObjectMapper();
 
     AnnotationServiceTest() {
         this.annotationService = new AnnotationService();
@@ -52,9 +56,9 @@ class AnnotationServiceTest {
     @Test
     void create() throws SQLException, IOException {
         final Annotation annotation = annotationService.create(
-                USER_NAME, USER_NAME, anAnnotation(), null, USER_NAME
+                USER_NAME, TYPE,INSTANCE, anAnnotation(), null
         );
-        Assertions.assertTrue(annotationService.read(USER_NAME,annotation.getId(),
+        Assertions.assertTrue(annotationService.read(USER_NAME,annotation.getId(),TYPE,INSTANCE,
                         null).isPresent(),
                 "Created Annotation");
     }
@@ -62,13 +66,13 @@ class AnnotationServiceTest {
     @Test
     void read() throws SQLException, IOException {
         final Annotation annotation = annotationService.create(
-                USER_NAME, USER_NAME, anAnnotation(), null, USER_NAME
+                USER_NAME,TYPE,INSTANCE, anAnnotation(), null
         );
-        final UUID newAnnotationId = annotation.getId();
-        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId, null).isPresent(),
+        final String newAnnotationId = annotation.getId();
+        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,TYPE,INSTANCE, null).isPresent(),
                 "Annotation Created");
 
-        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,
+        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,TYPE,INSTANCE,
                         Locale.GERMAN).isEmpty(),
                 "Annotation Unavailable for Locale");
     }
@@ -76,13 +80,13 @@ class AnnotationServiceTest {
     @Test
     void readLocalized() throws SQLException, IOException {
         final Annotation annotation = annotationService.create(
-                USER_NAME, USER_NAME, anAnnotation(), Locale.GERMAN, USER_NAME
+                USER_NAME,TYPE,INSTANCE, anAnnotation(), Locale.GERMAN
         );
-        final UUID newAnnotationId = annotation.getId();
-        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId, null).isEmpty(),
+        final String newAnnotationId = annotation.getId();
+        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,TYPE,INSTANCE, null).isEmpty(),
                 "Annotation Unavailable for English");
 
-        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,
+        Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,TYPE,INSTANCE,
                         Locale.GERMAN).isPresent(),
                 "Annotation Available for Locale");
     }
@@ -97,18 +101,21 @@ class AnnotationServiceTest {
 
     void testList(Locale locale) throws SQLException, IOException {
         annotationService.create(
-                USER_NAME, USER_NAME, anAnnotation(), locale, USER_NAME
+                USER_NAME,TYPE,INSTANCE, anAnnotation(), locale
         );
-        Annotation newAnnotation = new Annotation();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("a", "a");
-        jsonObject.put("b", "b2");
-        newAnnotation.setNote(jsonObject);
-        annotationService.create(USER_NAME, USER_NAME, newAnnotation, locale, USER_NAME
+        Annotation newAnnotation = anAnnotation();
+        JsonNode jsonObject = mapper.readTree("""
+                {
+                "a": "a",
+                "b": "b2"
+                }
+                """);
+        newAnnotation.setBody(jsonObject);
+        annotationService.create(USER_NAME,TYPE,INSTANCE, newAnnotation, locale
         );
         List<Annotation> listofannotation = annotationService.list(USER_NAME,
-                locale, USER_NAME,
-                USER_NAME
+                locale, TYPE,
+                INSTANCE
         );
         Assertions.assertEquals(2, listofannotation.size());
     }
@@ -120,27 +127,23 @@ class AnnotationServiceTest {
 
     void testUpdate(Locale locale) throws SQLException, IOException {
         final Annotation annotation = annotationService.create(
-                USER_NAME, USER_NAME, anAnnotation(), locale, USER_NAME
+                USER_NAME,TYPE,INSTANCE, anAnnotation(), locale
         );
-        final UUID newAnnotationId = annotation.getId();
-
-        Annotation newAnnotation = new Annotation();
-
-        newAnnotation.setId(newAnnotationId);
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b2");
-        newAnnotation.setNote(jsonObject);
+        annotation.setBody(mapper.readTree(jsonObject.toString()));
 
         Optional<Annotation> updatedAnnotation = annotationService
-                .update(USER_NAME, newAnnotationId, locale, newAnnotation);
+                .update(USER_NAME, annotation.getId(), TYPE,INSTANCE,locale, annotation);
+
         Assertions.assertEquals("b2", updatedAnnotation.get()
-                .getNote().get("b"), "Updated");
+                .getBody().get("b").asText(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             annotationService
-                    .update(USER_NAME, UUID.randomUUID(), locale, newAnnotation);
+                    .update(USER_NAME, UUID.randomUUID().toString(), TYPE,INSTANCE,locale, annotation);
         });
     }
     @Test
@@ -151,27 +154,23 @@ class AnnotationServiceTest {
 
     void testDelete(Locale locale) throws SQLException, IOException {
         final Annotation annotation = annotationService.create(
-                USER_NAME, USER_NAME, anAnnotation(), locale, USER_NAME
+                USER_NAME,TYPE,INSTANCE, anAnnotation(), locale
         );
         annotationService.delete(USER_NAME, annotation.getId(), locale);
-        Assertions.assertFalse(annotationService.read(USER_NAME,annotation.getId(), locale).isPresent(),
+        Assertions.assertFalse(annotationService.read(USER_NAME,annotation.getId(),TYPE,INSTANCE, locale).isPresent(),
                 "Deleted Annotation");
     }
 
     @Test
     void testMultiUser() throws SQLException, IOException {
         annotationService.create(
-                USER_NAME, INSTANCE, anAnnotation(), null, TYPE
-        );
-        Annotation newAnnotation = new Annotation();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("a", "a");
-        jsonObject.put("b", "b2");
-        newAnnotation.setNote(jsonObject);
-        annotationService.create(USER_NAME, INSTANCE, anAnnotation(), null, TYPE
+                USER_NAME, TYPE, INSTANCE, anAnnotation(), null
         );
 
-        annotationService.create(USER_NAME2, INSTANCE, anAnnotation(), null, TYPE
+        annotationService.create(USER_NAME, TYPE, INSTANCE, anAnnotation(), null
+        );
+
+        annotationService.create(USER_NAME2, TYPE, INSTANCE, anAnnotation(), null
         );
 
         List<Annotation> listofannotation = annotationService.list(USER_NAME,
@@ -181,12 +180,35 @@ class AnnotationServiceTest {
         Assertions.assertEquals(2, listofannotation.size());
     }
 
-    private Annotation anAnnotation() {
+    private Annotation anAnnotation() throws JsonProcessingException {
         Annotation annotation = new Annotation();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("a", "a");
-        jsonObject.put("b", "b");
-        annotation.setNote(jsonObject);
+        annotation.setId(UUID.randomUUID().toString());
+        annotation.setType("Annotation");
+        annotation.setMotivation("Linking");
+        annotation.setBody(mapper.readTree("""
+                [
+                  {
+                    "purpose": "commenting",
+                    "type": "TextualBody",
+                    "value": "Note 1"
+                  }
+                ]
+                """));
+        annotation.setTarget(mapper.readTree("""
+                {
+                      "selector": [
+                        {
+                          "exact": "Growth increases",
+                          "type": "TextQuoteSelector"
+                        },
+                        {
+                          "start": 0,
+                          "end": 16,
+                          "type": "TextPositionSelector"
+                        }
+                      ]
+                    }
+                """));
         return annotation;
     }
 
