@@ -32,15 +32,15 @@ public class AnnotationService {
                                    final Locale locale
                                    )
             throws SQLException, IOException {
-        annotation.setOnType(onType);
-        annotation.setOnInstance(onInstance);
+        Annotation annotationToBeCreated = annotation.withOnType(onType)
+                .withOnInstance(onInstance);
         if (locale != null) {
-            annotation.setLocale(locale.getLanguage());
+            annotationToBeCreated = annotationToBeCreated.withLocale(locale.getLanguage());
         }
         return NoteBookUtil.getNoteBookUtil()
                 .getAnnotationStore(userName)
                 .insert()
-                .values(annotation).returning();
+                .values(annotationToBeCreated).returning();
     }
 
 
@@ -86,12 +86,12 @@ public class AnnotationService {
             throws SQLException, IOException {
         if (locale == null) {
             return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
-                    .select(AnnotationStore.onType().eq(onType)
+                    .select().where(AnnotationStore.onType().eq(onType)
                             .and().locale().isNull()
                             .and().onInstance().eq(onInstance)).execute();
         } else {
             return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
-                    .select(AnnotationStore.onType().eq(onType)
+                    .select().where(AnnotationStore.onType().eq(onType)
                             .and().locale().eq(locale.getLanguage())
                             .and().onInstance().eq(onInstance)).execute();
         }
@@ -115,13 +115,13 @@ public class AnnotationService {
                           final Annotation annotation)
             throws SQLException, IOException {
 
-        if (id.equals(annotation.getId())) {
+        if (id.equals(annotation.id())) {
             int updated;
             if (locale == null) {
                 updated = NoteBookUtil.getNoteBookUtil()
                         .getAnnotationStore(userName).update()
-                    .set(AnnotationStore.body(annotation.getBody()),
-                            AnnotationStore.target(annotation.getTarget()))
+                    .set(AnnotationStore.body(annotation.body()),
+                            AnnotationStore.target(annotation.target()))
                     .where(AnnotationStore.id().eq(id)
                             .and().onType().eq(onType)
                             .and().onInstance().eq(onInstance)
@@ -130,8 +130,8 @@ public class AnnotationService {
             } else {
                 updated = NoteBookUtil.getNoteBookUtil()
                         .getAnnotationStore(userName).update()
-                        .set(AnnotationStore.body(annotation.getBody()),
-                        AnnotationStore.target(annotation.getTarget()))
+                        .set(AnnotationStore.body(annotation.body()),
+                        AnnotationStore.target(annotation.target()))
                     .where(AnnotationStore.id().eq(id)
                             .and().onType().eq(onType)
                             .and().onInstance().eq(onInstance)
