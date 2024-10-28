@@ -35,7 +35,8 @@ public class AnnotationService {
         Annotation annotationToBeCreated = annotation.withOnType(onType)
                 .withOnInstance(onInstance);
         if (locale != null) {
-            annotationToBeCreated = annotationToBeCreated.withLocale(locale.getLanguage());
+            annotationToBeCreated = annotationToBeCreated
+                    .withLocale(locale.getLanguage());
         }
         return NoteBookUtil.getNoteBookUtil()
                 .getAnnotationStore(userName)
