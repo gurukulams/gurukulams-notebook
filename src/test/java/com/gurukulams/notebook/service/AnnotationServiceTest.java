@@ -58,7 +58,7 @@ class AnnotationServiceTest {
         final Annotation annotation = annotationService.create(
                 USER_NAME, TYPE,INSTANCE, anAnnotation(), null
         );
-        Assertions.assertTrue(annotationService.read(USER_NAME,annotation.getId(),TYPE,INSTANCE,
+        Assertions.assertTrue(annotationService.read(USER_NAME,annotation.id(),TYPE,INSTANCE,
                         null).isPresent(),
                 "Created Annotation");
     }
@@ -68,7 +68,7 @@ class AnnotationServiceTest {
         final Annotation annotation = annotationService.create(
                 USER_NAME,TYPE,INSTANCE, anAnnotation(), null
         );
-        final String newAnnotationId = annotation.getId();
+        final String newAnnotationId = annotation.id();
         Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,TYPE,INSTANCE, null).isPresent(),
                 "Annotation Created");
 
@@ -82,7 +82,7 @@ class AnnotationServiceTest {
         final Annotation annotation = annotationService.create(
                 USER_NAME,TYPE,INSTANCE, anAnnotation(), Locale.GERMAN
         );
-        final String newAnnotationId = annotation.getId();
+        final String newAnnotationId = annotation.id();
         Assertions.assertTrue(annotationService.read(USER_NAME,newAnnotationId,TYPE,INSTANCE, null).isEmpty(),
                 "Annotation Unavailable for English");
 
@@ -110,7 +110,7 @@ class AnnotationServiceTest {
                 "b": "b2"
                 }
                 """);
-        newAnnotation.setBody(jsonObject);
+        newAnnotation = newAnnotation.withBody(jsonObject);
         annotationService.create(USER_NAME,TYPE,INSTANCE, newAnnotation, locale
         );
         List<Annotation> listofannotation = annotationService.list(USER_NAME,
@@ -126,20 +126,19 @@ class AnnotationServiceTest {
     }
 
     void testUpdate(Locale locale) throws SQLException, IOException {
-        final Annotation annotation = annotationService.create(
-                USER_NAME,TYPE,INSTANCE, anAnnotation(), locale
-        );
-
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("a", "a");
         jsonObject.put("b", "b2");
-        annotation.setBody(mapper.readTree(jsonObject.toString()));
+
+        final Annotation annotation = annotationService.create(
+                USER_NAME,TYPE,INSTANCE, anAnnotation(), locale
+        ).withBody(mapper.readTree(jsonObject.toString()));
 
         Optional<Annotation> updatedAnnotation = annotationService
-                .update(USER_NAME, annotation.getId(), TYPE,INSTANCE,locale, annotation);
+                .update(USER_NAME, annotation.id(), TYPE,INSTANCE,locale, annotation);
 
         Assertions.assertEquals("b2", updatedAnnotation.get()
-                .getBody().get("b").asText(), "Updated");
+                .body().get("b").asText(), "Updated");
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             annotationService
@@ -156,8 +155,8 @@ class AnnotationServiceTest {
         final Annotation annotation = annotationService.create(
                 USER_NAME,TYPE,INSTANCE, anAnnotation(), locale
         );
-        annotationService.delete(USER_NAME, annotation.getId(), TYPE, INSTANCE, locale);
-        Assertions.assertFalse(annotationService.read(USER_NAME,annotation.getId(),TYPE,INSTANCE, locale).isPresent(),
+        annotationService.delete(USER_NAME, annotation.id(), TYPE, INSTANCE, locale);
+        Assertions.assertFalse(annotationService.read(USER_NAME,annotation.id(),TYPE,INSTANCE, locale).isPresent(),
                 "Deleted Annotation");
     }
 
@@ -181,11 +180,10 @@ class AnnotationServiceTest {
     }
 
     private Annotation anAnnotation() throws JsonProcessingException {
-        Annotation annotation = new Annotation();
-        annotation.setId(UUID.randomUUID().toString());
-        annotation.setType("Annotation");
-        annotation.setMotivation("Linking");
-        annotation.setBody(mapper.readTree("""
+        Annotation annotation = new Annotation(UUID.randomUUID().toString(),null,null
+                ,"Annotation",
+        "Linking",null,
+                mapper.readTree("""
                 [
                   {
                     "purpose": "commenting",
@@ -193,8 +191,7 @@ class AnnotationServiceTest {
                     "value": "Note 1"
                   }
                 ]
-                """));
-        annotation.setTarget(mapper.readTree("""
+                """),mapper.readTree("""
                 {
                       "selector": [
                         {

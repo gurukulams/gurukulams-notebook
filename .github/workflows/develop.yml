@@ -19,7 +19,7 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
     - name: Build the Infrastructure
-      run: docker-compose up -d
+      run: docker compose up -d
     - name: Prepare Code
       run: |
         ./mvnw -s $GITHUB_WORKSPACE/src/main/res/.m2/settings.xml -B clean package -DskipTests --file pom.xml

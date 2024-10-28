@@ -1,6 +1,6 @@
 package com.gurukulams.notebook.util;
 
-import com.gurukulams.notebook.NoteBookManager;
+import com.gurukulams.notebook.DataManager;
 import com.gurukulams.notebook.service.AnnotationService;
 import com.gurukulams.notebook.store.AnnotationStore;
 import org.h2.jdbcx.JdbcDataSource;
@@ -47,7 +47,7 @@ public class NoteBookUtil {
      */
     public AnnotationStore getAnnotationStore(final String userName)
             throws SQLException, IOException {
-        return new NoteBookManager(getDataSource(userName))
+        return new DataManager(getDataSource(userName))
                 .getAnnotationStore();
     }
 
