@@ -42,12 +42,12 @@ public class NoteBookUtil {
 
     /**
      * Get Annotation Store for User.
-     * @param userName
+     *
      * @return getAnnotationService(userName)
      */
-    public AnnotationStore getAnnotationStore(final String userName)
+    public AnnotationStore getAnnotationStore()
             throws SQLException, IOException {
-        return new DataManager(getDataSource(userName))
+        return new DataManager()
                 .getAnnotationStore();
     }
 
@@ -58,7 +58,7 @@ public class NoteBookUtil {
      * @throws IOException
      * @throws SQLException
      */
-    private static DataSource getDataSource(final String userName)
+    public static DataSource getDataSource(final String userName)
             throws IOException, SQLException {
         JdbcDataSource ds = new JdbcDataSource();
         String dbFile = DATA_NOTEBOOK + userName;
