@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import static com.gurukulams.notebook.util.NoteBookUtil.getDataSource;
+
 /**
  * The type User Annotation service.
  */
@@ -39,9 +41,10 @@ public class AnnotationService {
                     .withLocale(locale.getLanguage());
         }
         return NoteBookUtil.getNoteBookUtil()
-                .getAnnotationStore(userName)
+                .getAnnotationStore()
                 .insert()
-                .values(annotationToBeCreated).returning();
+                .values(annotationToBeCreated)
+                .returning(getDataSource(userName));
     }
 
 
@@ -61,12 +64,14 @@ public class AnnotationService {
                         final Locale locale)
             throws SQLException, IOException {
         if (locale == null) {
-            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
-                    .select(id, onType, onInstance, AnnotationStore
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore()
+                    .select(getDataSource(userName), id,
+                            onType, onInstance, AnnotationStore
                     .locale().isNull());
         } else {
-            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
-                    .select(id, onType, onInstance, AnnotationStore
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore()
+                    .select(getDataSource(userName), id,
+                            onType, onInstance, AnnotationStore
                     .locale().eq(locale.getLanguage()));
         }
     }
@@ -86,15 +91,17 @@ public class AnnotationService {
                                         final String onInstance)
             throws SQLException, IOException {
         if (locale == null) {
-            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore()
                     .select().where(AnnotationStore.onType().eq(onType)
                             .and().locale().isNull()
-                            .and().onInstance().eq(onInstance)).execute();
+                            .and().onInstance().eq(onInstance))
+                    .execute(getDataSource(userName));
         } else {
-            return NoteBookUtil.getNoteBookUtil().getAnnotationStore(userName)
+            return NoteBookUtil.getNoteBookUtil().getAnnotationStore()
                     .select().where(AnnotationStore.onType().eq(onType)
                             .and().locale().eq(locale.getLanguage())
-                            .and().onInstance().eq(onInstance)).execute();
+                            .and().onInstance().eq(onInstance))
+                    .execute(getDataSource(userName));
         }
     }
 
@@ -120,24 +127,24 @@ public class AnnotationService {
             int updated;
             if (locale == null) {
                 updated = NoteBookUtil.getNoteBookUtil()
-                        .getAnnotationStore(userName).update()
+                        .getAnnotationStore().update()
                     .set(AnnotationStore.body(annotation.body()),
                             AnnotationStore.target(annotation.target()))
                     .where(AnnotationStore.id().eq(id)
                             .and().onType().eq(onType)
                             .and().onInstance().eq(onInstance)
                             .and().locale().isNull())
-                    .execute();
+                    .execute(getDataSource(userName));
             } else {
                 updated = NoteBookUtil.getNoteBookUtil()
-                        .getAnnotationStore(userName).update()
+                        .getAnnotationStore().update()
                         .set(AnnotationStore.body(annotation.body()),
                         AnnotationStore.target(annotation.target()))
                     .where(AnnotationStore.id().eq(id)
                             .and().onType().eq(onType)
                             .and().onInstance().eq(onInstance)
                             .and().locale().eq(locale.getLanguage()))
-                    .execute();
+                    .execute(getDataSource(userName));
             }
 
             return read(userName, id, onType, onInstance, locale);
@@ -165,19 +172,21 @@ public class AnnotationService {
             throws SQLException, IOException {
         if (locale == null) {
             return NoteBookUtil.getNoteBookUtil()
-                    .getAnnotationStore(userName).delete(
+                    .getAnnotationStore().delete(
                     AnnotationStore.id().eq(id)
                             .and().onType().eq(onType)
                             .and().onInstance().eq(onInstance)
-                            .and().locale().isNull()).execute() == 1;
+                            .and().locale().isNull())
+                    .execute(getDataSource(userName)) == 1;
         }
         return NoteBookUtil.getNoteBookUtil()
-                .getAnnotationStore(userName).delete(
+                .getAnnotationStore().delete(
                 AnnotationStore.id().eq(id)
                         .and().onType().eq(onType)
                         .and().onInstance().eq(onInstance)
                         .and().locale()
-                        .eq(locale.getLanguage())).execute() == 1;
+                        .eq(locale.getLanguage()))
+                .execute(getDataSource(userName)) == 1;
     }
 
     /**
@@ -187,6 +196,7 @@ public class AnnotationService {
     public void delete(final String userName)
             throws SQLException, IOException {
         NoteBookUtil.getNoteBookUtil()
-                .getAnnotationStore(userName).delete().execute();
+                .getAnnotationStore().delete()
+                .execute(getDataSource(userName));
     }
 }
